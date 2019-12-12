@@ -7,7 +7,7 @@ import { format } from '../helper/format-tweet-volume';
 module.exports = async (req, res, next) => {
   const data = await firebase.getValue('places');
   const places = Object.values(data.val());
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < places.length; i++) {
     const uri = `${process.env.HOST}/trends/place/${places[i].woeid}`;
     const dbpath = `trends/places/${places[i].woeid}/time`;
     let trends_day = await firebase.getValue(dbpath);
