@@ -14,6 +14,7 @@ app.get('/', require('./lambda/status'));
 // Trends
 app.get('/trends/place/:id', require('./lambda/trends/trends-near-location'));
 app.get('/trends/places', require('./lambda/trends/get-locations'));
+app.get('/trends/:weoid', require('./lambda/trends/get-trends-places'));
 
 // heart beat trends
 app.post('/heart-beat-trends', require('./lambda/trends/heart-beat-trends'));
