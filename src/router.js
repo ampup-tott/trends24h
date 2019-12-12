@@ -5,17 +5,6 @@ const body = require('body-parser');
 const axios = require('axios');
 const favicon = require('express-favicon');
 
-function exucute() {
-  setInterval(async () => {
-    const uri = `${process.env.HOST}/heart-beat-trends`;
-    await axios.post(uri)
-      .catch(error => {
-        console.log(error.data);
-      })
-
-  },
-  (60 * 60 * 1000 - 5))
-}
 app.use(require('./mid/json'));
 app.use(favicon(__dirname + '.../public/favicon.ico'))
 
