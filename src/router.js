@@ -2,10 +2,11 @@
 
 const app = require('router')();
 const body = require('body-parser');
-const axios = require('axios');
 const favicon = require('express-favicon');
 
+app.use(body.json({ limit: '50mb' }));
 app.use(require('./mid/json'));
+app.use(require('./mid/query'));
 app.use(favicon(__dirname + '.../public/favicon.ico'));
 
 app.get('/', require('./lambda/status'));
