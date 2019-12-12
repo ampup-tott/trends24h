@@ -6,9 +6,7 @@ const axios = require('axios');
 const favicon = require('express-favicon');
 
 app.use(require('./mid/json'));
-app.use(favicon(__dirname + '.../public/favicon.ico'))
-
-exucute();
+app.use(favicon(__dirname + '.../public/favicon.ico'));
 
 app.get('/', require('./lambda/status'));
 
