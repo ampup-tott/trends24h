@@ -12,10 +12,11 @@ module.exports = async (req, res, next) => {
   }
 
   if (!time || !parseInt(time)) {
-    return next('Missing or Wrong parameter: time');
+    time = moment().startOf('hour').unix()
   }
-  
-  time = moment(time * 1000).utc().startOf('hour').unix();
+  else {
+    time = moment(time * 1000).utc().startOf('hour').unix();
+  }
 
   const times = [];
   for (let i = 0; i < 23; i++) {
