@@ -25,8 +25,9 @@ module.exports = async (req, res, next) => {
   const timestamp = moment(as_of).startOf('hour').unix();
   
   firebase.updateValueFirestore('trends', `${place.woeid}`, `${timestamp}`, current_trends);
-
+  
   res.json({
-    status: 'OK'
+    status: 'OK',
+    as_of
   })
 }
