@@ -1,19 +1,31 @@
 'use strict';
 
 import firebase from '../helper/firebase';
+import moment from 'moment';
 
 module.exports = async (req, res, next) => {
   const { weoid } = req.params;
+  let { time } = req.query;
+
   if (!weoid) {
     return next('Missing parameter: weoid');
   }
-  const dbPath = `trends/places/${weoid}/time`;
-  let data = await firebase.getValue(dbPath);
-  if (data.val()) {
-    data = Object.values(data.val());
+
+  if (!time || !parseInt(time)) {
+    return next('Missing or Wrong parameter: time');
   }
-  else {
-    return next('Wrong woeid!');
+  
+  time = moment(time * 1000).utc().startOf('hour').unix();
+
+  const times = [];
+  for (let i = 0; i < 23; i++) {
+    times.push(`${time - (i * 3600) }`);
+  }
+
+  let data = await firebase.getValueFireStore('trends', `${weoid}`, times);
+
+  if (data.length == 0) {
+    return next('Wrong id or time!');
   }
 
   return res.json({

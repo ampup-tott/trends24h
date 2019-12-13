@@ -24,6 +24,12 @@ function setValue(path, obj){
     admin.database().ref(path).set(obj);
 }
 
+function setValueFirestore(collection, document, key, obj) {
+  admin.firestore().collection(collection).doc(document).set({
+    [key]: obj
+  })
+}
+
 function removePath(path){
   admin.database().ref(path).remove()
 }
@@ -41,4 +47,30 @@ function getValue(path, callback){
       .ref(path).once('value', callback);
 }
 
-module.exports = { setValue, updateValue, getValue, removePath, removeObjectKey };
+async function getValueFireStore(collection, document, keys) {
+  let result = [];
+  await admin.firestore().collection(collection).doc(document).get()
+    .then(doc => {
+      if (doc.exists) {
+        const data = doc.data();
+        for (let i = 0; i < keys.length; i++) {
+          result.push({ ...data[keys[i]] });
+        }
+      }
+      else {
+        console.log("No such document!");
+      }
+    })
+    .catch(err => {
+      console.log(err.message);
+    })
+    return result;
+}
+
+function updateValueFirestore(collection, document, key, obj) {
+  admin.firestore().collection(collection).doc(document).update({
+    [key]: obj
+  })
+}
+
+module.exports = { setValue, updateValue, getValue, removePath, removeObjectKey, setValueFirestore, getValueFireStore, updateValueFirestore };
