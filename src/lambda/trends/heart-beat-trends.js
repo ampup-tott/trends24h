@@ -46,7 +46,7 @@ module.exports = async (req, res, next) => {
       
       if (lastest_trend.val()) {
         firebase.updateValue(db_path, `${timestamp}`, current_trends);
-        console.log('realtime & firestore')
+        console.log('realtime & firestore');
         res.json({
           status: 'OK',
           as_of
@@ -56,10 +56,11 @@ module.exports = async (req, res, next) => {
         const trend_updated = await firebase.getValue(`${db_path}/${timestamp - 3600}`); // check trend for 1 hour ago
         if (trend_updated.val()) {
           firebase.updateValueFirestore('trends', `${place.woeid}`, `${timestamp - 3600}`, trend_updated.val());
+          console.log('realtime & firestore');
           // move to firestore (Firestore will save 1 hour ago -> older)
         }
         firebase.updateValue(db_path, `${timestamp}`, current_trends);
-        console.log('realtime')
+        console.log('realtime');
         res.json({
           status: 'OK',
           db: 'realtime'
