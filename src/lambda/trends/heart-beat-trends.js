@@ -54,7 +54,7 @@ module.exports = async (req, res, next) => {
       else { // Not existed: (different hour or data isn't created)
         const trend_updated = await firebase.getValue(`${db_path}/${timestamp - 3600}`); // check trend for 1 hour ago
         if (trend_updated.val()) {
-          firebase.updateValueFirestore('trends', `${place.woeid}`, `${timestamp - 3600}`, trends_updated.val());
+          firebase.updateValueFirestore('trends', `${place.woeid}`, `${timestamp - 3600}`, trend_updated.val());
           // move to firestore (Firestore will save 1 hour ago -> older)
         }
         firebase.updateValue(db_path, `${timestamp}`, current_trends);
