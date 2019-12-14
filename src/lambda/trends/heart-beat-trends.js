@@ -1,33 +1,70 @@
 'use strict';
 
-import firebase from '../helper/firebase';
-import axios from 'axios';
 import moment from 'moment';
-
-import { format } from '../helper/format-tweet-volume';
+import firebase from '../helper/firebase';
+import Twit from 'twit';
 
 module.exports = async (req, res, next) => {
-  const place = req.body;
-  
-  const uri = `${process.env.HOST}/trends/place/${place.woeid}`;
-  let current_trends = {};
+  const { place, key, amount_trends } = req.body;
 
-  await axios.get(uri)
-    .then(result => {
-      const data = result.data.data[0];
-      current_trends = { ...data };
+  const { api_key } = req.headers;
+
+  if (!api_key || (api_key !== process.env.API_KEY)) {
+    res.statusCode = 403;
+    return next('Forbinden');
+  }
+
+  const config = {
+    consumer_key: process.env[`CONSUMER_KEY_${key}`],
+    consumer_secret: process.env[`CONSUMER_SECRET_${key}`],
+    access_token: process.env.ACCESS_TOKEN,
+    access_token_secret: process.env.ACCESS_TOKEN_SECRET,
+    app_only_auth: true
+  }; // Use keys for config
+
+  const twit = new Twit(config);
+
+  try {
+    twit.get('trends/place', { id: `${place.woeid }` }, async (err, data, response) => {
+      if (err) {
+        next(err.message);
+        res.json('err');
+      }
+      
+      let current_trends = data[0];
+      let { as_of, trends } = current_trends; // Trends newest
+      trends = trends.slice(0, amount_trends); // Limit trends
+      current_trends = {
+        ...current_trends,
+        trends: trends
+      };
+
+      const timestamp = moment(as_of).startOf('hour').unix(); // Ensure start of hour
+
+      const db_path = `trends/${place.woeid}`; // Path to db
+      const lastest_trend = await firebase.getValue(`${db_path}/${timestamp}`); // Trend in realtime db. Only save newest trend for place
+      
+      if (lastest_trend.val()) {
+        firebase.updateValue(db_path, `${timestamp}`, current_trends);
+        res.json({
+          status: 'OK',
+          as_of
+        })
+      }
+      else { // Not existed: (different hour or data isn't created)
+        const trend_updated = await firebase.getValue(`${db_path}/${timestamp - 3600}`); // check trend for 1 hour ago
+        if (trend_updated.val()) {
+          firebase.updateValueFirestore('trends', `${place.woeid}`, `${timestamp - 3600}`, trends_updated.val());
+          // move to firestore (Firestore will save 1 hour ago -> older)
+        }
+        firebase.updateValue(db_path, `${timestamp}`, current_trends);
+        res.json({
+          status: 'OK',
+          db: 'realtime'
+        })
+      }
     })
-    .catch(error => {
-      console.log(error.message);
-    });
-    
-  const { as_of } = current_trends;
-  const timestamp = moment(as_of).startOf('hour').unix();
-  
-  firebase.updateValueFirestore('trends', `${place.woeid}`, `${timestamp}`, current_trends);
-  
-  res.json({
-    status: 'OK',
-    as_of
-  })
+  } catch(error) {
+    return next(error.message)
+  }
 }

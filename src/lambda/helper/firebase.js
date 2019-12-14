@@ -73,4 +73,8 @@ function updateValueFirestore(collection, document, key, obj) {
   })
 }
 
-module.exports = { setValue, updateValue, getValue, removePath, removeObjectKey, setValueFirestore, getValueFireStore, updateValueFirestore };
+function remove(col, doc) {
+  admin.firestore().collection(col).doc(doc).delete()
+}
+
+module.exports = {remove, setValue, updateValue, getValue, removePath, removeObjectKey, setValueFirestore, getValueFireStore, updateValueFirestore };
