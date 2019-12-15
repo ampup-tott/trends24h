@@ -39,7 +39,7 @@ module.exports = async (req, res, next) => {
       };
 
       const timestamp = moment(as_of).startOf('hour').unix(); // Ensure start of hour
-      const logs = '';
+      let logs = '';
       const db_path = `trends/${place.woeid}`; // Path to db
       const lastest_trend = await firebase.getValue(`${db_path}/${timestamp}`); // Trend in realtime db. Only save newest trend for place
       
