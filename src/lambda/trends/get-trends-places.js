@@ -6,6 +6,13 @@ import moment from 'moment';
 module.exports = async (req, res, next) => {
   const { weoid } = req.params;
   let { time } = req.query;
+  
+  const { api_key } = req.headers;
+
+  if (!api_key || (api_key !== process.env.API_KEY)) {
+    res.statusCode = 403;
+    return next('Forbinden');
+  }
 
   if (!weoid) {
     return next('Missing parameter: weoid');
