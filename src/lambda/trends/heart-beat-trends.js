@@ -55,6 +55,7 @@ module.exports = async (req, res, next) => {
         const trend_updated = await firebase.getValue(`${db_path}/${timestamp - 3600}`); // check trend for 1 hour ago
         if (trend_updated.val()) {
           firebase.updateValueFirestore('trends', `${place.woeid}`, `${timestamp - 3600}`, trend_updated.val());
+          firebase.removePath(`${db_path}/${timestamp - 3600}`); // remove
           logs += 'firestore & ';
           // move to firestore (Firestore will save 1 hour ago -> older)
         }
