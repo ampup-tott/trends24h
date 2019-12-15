@@ -7,7 +7,7 @@ import Twit from 'twit';
 module.exports = async (req, res, next) => {
   const { place, key, amount_trends } = req.body;
 
-  const { api_key } = req.headers;
+  const { api_key } = req.headers; // Need api_key to access this api
 
   if (!api_key || (api_key !== process.env.API_KEY)) {
     res.statusCode = 403;
@@ -27,12 +27,11 @@ module.exports = async (req, res, next) => {
   try {
     twit.get('trends/place', { id: `${place.woeid }` }, async (err, data, response) => {
       if (err) {
-        next(err.message);
-        res.json('err');
+        return next(err.message);
       }
       
-      let current_trends = data[0];
-      let { as_of, trends } = current_trends; // Trends newest
+      let current_trends = data[0]; // trends of place if newest
+      let { as_of, trends } = current_trends; // array trends newest
       trends = trends.slice(0, amount_trends); // Limit trends
       current_trends = {
         ...current_trends,
@@ -45,8 +44,8 @@ module.exports = async (req, res, next) => {
       const lastest_trend = await firebase.getValue(`${db_path}/${timestamp}`); // Trend in realtime db. Only save newest trend for place
       
       if (lastest_trend.val()) {
-        firebase.updateValue(db_path, `${timestamp}`, current_trends);
-        console.log('realtime & firestore');
+        firebase.updateValue(db_path, `${timestamp}`, current_trends); // Update newest data (in hour)
+        console.log('realtime');
         res.json({
           status: 'OK',
           as_of
@@ -59,7 +58,7 @@ module.exports = async (req, res, next) => {
           console.log('realtime & firestore');
           // move to firestore (Firestore will save 1 hour ago -> older)
         }
-        firebase.updateValue(db_path, `${timestamp}`, current_trends);
+        firebase.updateValue(db_path, `${timestamp}`, current_trends); // Update db realtime
         console.log('realtime');
         res.json({
           status: 'OK',
