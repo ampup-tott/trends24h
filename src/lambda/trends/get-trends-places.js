@@ -25,7 +25,7 @@ module.exports = async (req, res, next) => {
     time = moment(time * 1000).utc().startOf('hour').unix(); // Set time follow request
   }
  
-  const db_path = `trends/${weoid}/${time}`; // Path to db realtime
+  let db_path = `trends/${weoid}/${time}`; // Path to db realtime
   let place_trend = await firebase.getValue(db_path); // Trend newest in db realtime
   if (place_trend.val()) {
     place_trend = { ...place_trend.val() };
