@@ -30,8 +30,16 @@ module.exports = async (req, res, next) => {
   if (place_trend.val()) {
     place_trend = { ...place_trend.val() };
   }
-  else { // Not existed in db
-    place_trend = {};
+  else { // Not existed in db or not updated
+    time = time - 3600;
+    db_path = `trends/${weoid}/${time}`; // Path to db realtime
+    place_trend = await firebase.getValue(db_path); // Trend newest in db realtime
+    if (place_trend.val()) {
+      place_trend = { ...place_trend.val() };
+    }
+    else {
+      place_trend = {};
+    }
   }
 
   let times = []; // slots time in day follow hour
