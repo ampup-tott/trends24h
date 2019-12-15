@@ -41,7 +41,7 @@ function updateValue(path, child, obj){
 function removeObjectKey(path, key) {
   admin.database().ref(path).child(key).remove();
 }
-function getValue(path, callback){
+async function getValue(path, callback){
   return admin
       .database()
       .ref(path).once('value', callback);
