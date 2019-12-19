@@ -1,7 +1,7 @@
 'use strict';
 
 import moment from 'moment';
-import firebase from '../helper/firebase';
+import mongo from '../helper/mongo';
 import Twit from 'twit';
 
 module.exports = async (req, res, next) => {
@@ -39,36 +39,19 @@ module.exports = async (req, res, next) => {
       };
 
       const timestamp = moment(as_of).startOf('hour').unix(); // Ensure start of hour
-      let logs = '';
-      const db_path = `trends/${place.woeid}`; // Path to db
-      const lastest_trend = await firebase.getValue(`${db_path}/${timestamp}`); // Trend in realtime db. Only save newest trend for place
-      
-      if (lastest_trend.val()) {
-        firebase.updateValue(db_path, `${timestamp}`, current_trends); // Update newest data (in hour)
-        logs += 'realtime';
-        res.json({
-          status: 'OK',
-          as_of
-        })
+      const updated = await mongo.updateValue({ time: timestamp, woedid: place.woeid }, { woeid: place.woeid, time: timestamp, trends: current_trends });
+      if (updated && updated.n) { // Updated
+        console.log(`updated ${place.woeid}`);
+      } 
+      else { // new hour
+        mongo.setValue({ woeid: place.woeid, time: timestamp, trends: current_trends });
       }
-      else { // Not existed: (different hour or data isn't created)
-        const trend_updated = await firebase.getValue(`${db_path}/${timestamp - 3600}`); // check trend for 1 hour ago
-        if (trend_updated.val()) {
-          firebase.updateValueFirestore('trends', `${place.woeid}`, `${timestamp - 3600}`, trend_updated.val());
-          firebase.removePath(`${db_path}/${timestamp - 3600}`); // remove
-          logs += 'firestore & ';
-          // move to firestore (Firestore will save 1 hour ago -> older)
-        }
-        firebase.updateValue(db_path, `${timestamp}`, current_trends); // Update db realtime
-        logs += 'realtime';
-        res.json({
-          status: 'OK',
-          db: 'realtime'
-        })
-      }
-      console.log(logs);
+      return res.json({
+        status: 'Ok',
+        time: timestamp
+      })
     })
   } catch(error) {
-    return next(error.message)
+    return next(error.message);
   }
 }

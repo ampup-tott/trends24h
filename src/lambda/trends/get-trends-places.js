@@ -1,7 +1,8 @@
 'use strict';
 
-import firebase from '../helper/firebase';
 import moment from 'moment';
+import mongo from '../helper/mongo';
+import cache from '../helper/cache';
 
 module.exports = async (req, res, next) => {
   const { weoid } = req.params; // woeid of place: 
@@ -24,37 +25,24 @@ module.exports = async (req, res, next) => {
   else {
     time = moment(time * 1000).utc().startOf('hour').unix(); // Set time follow request
   }
- 
-  let db_path = `trends/${weoid}/${time}`; // Path to db realtime
-  let place_trend = await firebase.getValue(db_path); // Trend newest in db realtime
-  if (place_trend.val()) {
-    place_trend = { ...place_trend.val() };
+
+  const key_cache = `place-${weoid}-${time}`;
+  const data_cache = await cache.getCache(key_cache);
+  console.log(data_cache)
+  if (data_cache) {
+    return res.json({
+      data: JSON.parse(data_cache)
+    })
   }
-  else { // Not existed in db or not updated
-    time = time - 3600;
-    db_path = `trends/${weoid}/${time}`; // Path to db realtime
-    place_trend = await firebase.getValue(db_path); // Trend newest in db realtime
-    if (place_trend.val()) {
-      place_trend = { ...place_trend.val() };
-    }
-    else {
-      place_trend = {};
-    }
-  }
+  
+  let result = await mongo.getValues(time - (23 * 3600), weoid);
+  result = result.map(place => {
+    return place.trends;
+  })
 
-  let times = []; // slots time in day follow hour
-
-  for (let i = 1; i < 24; i++) {
-    times.push(`${time - (i * 3600) }`);
-  } // set slot 1 hour ago -> 23 hours ago
-
-  let data = await firebase.getValueFireStore('trends', `${weoid}`, times); // data of slots time in firestore
-
-  if (data.length === 0) { // not existed in firestore
-    return next('Wrong id or time!');
-  } 
+  cache.setCache(key_cache, JSON.stringify(result), 10 * 60);
 
   return res.json({
-    data: [place_trend, ...data]
+    data: result
   })
 }
