@@ -36,9 +36,15 @@ module.exports = async (req, res, next) => {
   }
   
   let result = await mongo.getValues(time - (23 * 3600), weoid);
+
+  result.sort((a, b) => {
+    return b.time - a.time;
+  })
+  
   result = result.map(place => {
     return place.trends;
   })
+
 
   cache.setCache(key_cache, JSON.stringify(result), 5 * 60);
 
