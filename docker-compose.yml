@@ -6,9 +6,9 @@ services:
     restart: always
     env_file: .env
     expose:
-      - "6969"
+      - "8080"
     volumes:
-      - .:/usr/src/app
+      - .:/usr/src/trends24h
     logging:
       options:
         max-size: 50m
