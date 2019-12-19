@@ -1,0 +1,15 @@
+version: '2.2'
+services:
+  upcharge:
+    build: .
+    mem_limit: 512m
+    restart: always
+    env_file: .env
+    expose:
+      - "6969"
+    volumes:
+      - .:/usr/src/app
+    logging:
+      options:
+        max-size: 50m
+    network_mode: host
