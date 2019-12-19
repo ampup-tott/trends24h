@@ -40,7 +40,7 @@ module.exports = async (req, res, next) => {
     return place.trends;
   })
 
-  cache.setCache(key_cache, JSON.stringify(result), 10 * 60);
+  cache.setCache(key_cache, JSON.stringify(result), 5 * 60);
 
   return res.json({
     data: result
