@@ -6,7 +6,7 @@ import cache from '../helper/cache';
 
 module.exports = async (req, res, next) => {
   const { weoid } = req.params; // woeid of place: 
-  let { time } = req.query; // time that you want to fetch
+  let { time, trends } = req.query; // time that you want to fetch
 
   const { api_key } = req.headers; // api_key need to access this api
 
@@ -19,6 +19,10 @@ module.exports = async (req, res, next) => {
     return next('Missing parameter: weoid');
   }
 
+  if (!trends && !parseInt(trends)) {
+    trends = 50;
+  }
+
   if (!time || !parseInt(time)) { // If haven't time ot wrong time
     time = moment().startOf('hour').unix() // Set time is current time
   }
@@ -26,7 +30,7 @@ module.exports = async (req, res, next) => {
     time = moment(time * 1000).utc().startOf('hour').unix(); // Set time follow request
   }
 
-  const key_cache = `place-${weoid}-${time}`;
+  const key_cache = `place-${weoid}-${time}-${trends}`;
   const data_cache = await cache.getCache(key_cache);
   
   if (data_cache) {
@@ -43,8 +47,14 @@ module.exports = async (req, res, next) => {
   
   result = result.map(place => {
     return place.trends;
-  })
+  });
 
+  if (trends < 50) {
+    result = result.map(trend => {
+      let slice_trends = trend.trends.slice(0, trends);
+      return { ...trend, trends: slice_trends };
+    })
+  }
 
   cache.setCache(key_cache, JSON.stringify(result), 5 * 60);
 
