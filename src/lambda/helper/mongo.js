@@ -5,8 +5,6 @@ import mongoose from 'mongoose';
 mongoose.connect(process.env.MONGODB_URL, {useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.log(err.message));
-mongoose.set('useFindAndModify', false);
-
 const trend_schema = new mongoose.Schema({
   woeid: Number,
   time: Number,
@@ -22,7 +20,7 @@ async function setValue(obj) {
 }
 
 async function replaceValue(old_obj, new_obj) {
-  await Place.findOneAndUpdate(old_obj, new_obj);
+  return await Place.replaceOne(old_obj, new_obj);
 }
 
 async function getValues(time, woeid) {
