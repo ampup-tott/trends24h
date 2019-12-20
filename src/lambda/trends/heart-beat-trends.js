@@ -34,7 +34,7 @@ module.exports = async (req, res, next) => {
       let { as_of } = current_trends; // array trends newest
 
       const timestamp = moment(as_of).startOf('hour').unix(); // Ensure start of hour 7:00
-      const updated = await mongo.replaceValue({ time: timestamp, woedid: place.woeid }, { woeid: place.woeid, time: timestamp, trends: current_trends });
+      const updated = await mongo.replaceValue({ time: timestamp, woeid: place.woeid }, { woeid: place.woeid, time: timestamp, trends: current_trends });
       if (updated && updated.n) { // Updated
         console.log(`updated ${place.woeid}`);
       } 
