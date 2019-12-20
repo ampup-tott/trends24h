@@ -39,6 +39,10 @@ module.exports = async (req, res, next) => {
       }
       
       let current_trends = data[0]; // trends of place if newest
+      if (!current_trends) {
+        return next('Error with key twitter')
+      }
+      
       let { as_of } = current_trends; // array trends newest
 
       const timestamp = moment(as_of).startOf('hour').unix(); // Ensure start of hour 7:00
