@@ -14,6 +14,14 @@ module.exports = async (req, res, next) => {
     return next('Forbinden');
   }
 
+  if (!place) {
+    return next('Missing parameter: place');
+  }
+
+  if (!key || !parseInt(key)) {
+    return next('Missing parameter: key');
+  }
+
   const config = {
     consumer_key: process.env[`CONSUMER_KEY_${key}`],
     consumer_secret: process.env[`CONSUMER_SECRET_${key}`],
