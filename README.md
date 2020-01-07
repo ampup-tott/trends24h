@@ -4,6 +4,7 @@ This is Back End Server for Twitter trend24h
 ## Clone project
 ```bash
 git clone https://github.com/ampup-tott/trends24h
+cd trends24h
 ```
 ## Install dependences
 - via npm
@@ -47,4 +48,9 @@ docker restart <container>
 - show logs of docker container
  ```bash
 docker logs -f <container>
+```
+## Start project with pm2 (require .env file)
+
+```bash
+pm2 start app.js
 ```
