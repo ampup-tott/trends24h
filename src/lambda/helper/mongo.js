@@ -35,7 +35,7 @@ async function getValue(woeid, time) {
 
 
 async function removeValue(obj) {
-  console.log(obj);
+  console.log('move', obj);
   await Place.deleteOne(obj);
 }
 

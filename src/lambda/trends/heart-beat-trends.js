@@ -55,7 +55,6 @@ module.exports = async (req, res, next) => {
         mongo.setValue({ woeid: place.woeid, time: timestamp, trends: current_trends });
       }
       const old_data = await mongo.getValue(place.woeid,  timestamp - 24 * 3600);
-      console.log(old_data);
 
       if (old_data) {
         mongo_backup.setValue(old_data);
