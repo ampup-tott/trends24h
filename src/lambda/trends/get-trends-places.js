@@ -32,14 +32,16 @@ module.exports = async (req, res, next) => {
 
   const key_cache = `place-${weoid}-${time}-${trends}`;
   const data_cache = await cache.getCache(key_cache);
-  
+   
   if (data_cache) {
     return res.json({
       data: JSON.parse(data_cache)
     })
   }
-  
+ 
+  console.time('query mongodb');
   let result = await mongo.getValues(time - (23 * 3600), weoid);
+  console.timeEnd('query mongodb');
 
   result.sort((a, b) => {
     return b.time - a.time;
