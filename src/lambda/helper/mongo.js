@@ -29,10 +29,22 @@ async function getValues(woeid, time, limit) {
     }
 }
 
+async function getValue(woeid, time) {
+  return await Place.findOne({ time, woeid });
+}
+
+
+async function removeValue(obj) {
+  console.log(obj);
+  await Place.deleteOne(obj);
+}
+
 module.exports = {
   setValue,
   replaceValue,
-  getValues
+  getValues,
+  removeValue,
+  getValue
 }
 
 

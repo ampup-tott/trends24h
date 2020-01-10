@@ -2,6 +2,7 @@
 
 import moment from 'moment';
 import mongo from '../helper/mongo';
+import mongo_backup from '../helper/mongo_backup';
 import Twit from 'twit';
 
 module.exports = async (req, res, next) => {
@@ -53,6 +54,14 @@ module.exports = async (req, res, next) => {
       else { // new hour
         mongo.setValue({ woeid: place.woeid, time: timestamp, trends: current_trends });
       }
+      const old_data = await mongo.getValue(place.woeid,  timestamp - 24 * 3600);
+      console.log(old_data);
+
+      if (old_data) {
+        mongo_backup.setValue(old_data);
+        mongo.removeValue({woeid: place.woeid, time: timestamp - 24 * 3600})
+      } 
+
       return res.json({
         status: 'Ok',
         time: timestamp
