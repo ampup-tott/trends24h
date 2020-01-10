@@ -27,7 +27,7 @@ module.exports = async (req, res, next) => {
     time = moment(time * 1000).utc().startOf('hour').unix();
   }
   else {
-    time = null;
+    time = moment().startOf('hour').unix();
   }
 
   const key_cache = `place-${weoid}-${time}-${trends}`;
@@ -40,7 +40,7 @@ module.exports = async (req, res, next) => {
   }
  
   console.time('query mongodb');
-  let result = await mongo.getValues(weoid, time);
+  let result = await mongo.getValues(weoid, time - (23 * 3600));
   console.timeEnd('query mongodb');
 
   result.sort((a, b) => {
