@@ -23,11 +23,11 @@ module.exports = async (req, res, next) => {
     trends = 50;
   }
 
-  if (!time || !parseInt(time)) { // If haven't time ot wrong time
-    time = moment().startOf('hour').unix() // Set time is current time
+  if (time && parseInt(time)) {
+    time = moment(time * 1000).utc().startOf('hour').unix();
   }
   else {
-    time = moment(time * 1000).utc().startOf('hour').unix(); // Set time follow request
+    time = null;
   }
 
   const key_cache = `place-${weoid}-${time}-${trends}`;
@@ -40,7 +40,7 @@ module.exports = async (req, res, next) => {
   }
  
   console.time('query mongodb');
-  let result = await mongo.getValues(time - (23 * 3600), weoid);
+  let result = await mongo.getValues(weoid, time);
   console.timeEnd('query mongodb');
 
   result.sort((a, b) => {

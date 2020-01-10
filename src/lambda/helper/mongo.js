@@ -20,10 +20,24 @@ async function replaceValue(old_obj, new_obj) {
   return await Place.replaceOne(old_obj, new_obj);
 }
 
-async function getValues(time, woeid) {
-  return await Place.find({time: { $gte: time }, woeid});
+async function getValues(woeid, time, limit) {
+  if (!time) {
+    if (!limit) {
+      return Place.find({ woeid }).limit(24);
+    }
+    else {
+      return Place.find({ woeid }).limit(limit);
+    }
+  }
+  else {
+    if (!limit) {
+      return Place.find({ time: { $gte: time }, woeid }).limit(24);
+    }
+    else {
+      return Place.find({ time: { $gte: time }, woeid }).limit(limit);
+    }
+  }
 }
-
 
 module.exports = {
   setValue,
